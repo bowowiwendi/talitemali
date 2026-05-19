@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPlayer, createPlayer, getPlayerRank } from "@/lib/kv";
-import { kv } from "@vercel/kv";
+import { getPlayer, createPlayer, getPlayerRank, getTotalPlayers } from "@/lib/kv";
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +21,7 @@ export async function POST(req: Request) {
 
     const [rank, totalPlayers] = await Promise.all([
       getPlayerRank(trimmed),
-      kv.zcard("leaderboard"),
+      getTotalPlayers(),
     ]);
 
     return NextResponse.json({
@@ -38,6 +37,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("POST /api/players error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
   }
 }

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPlayer, getPlayerRank } from "@/lib/kv";
-import { kv } from "@vercel/kv";
+import { getPlayer, getPlayerRank, getTotalPlayers } from "@/lib/kv";
 
 export async function GET(
   _req: Request,
@@ -16,7 +15,7 @@ export async function GET(
 
     const [rank, totalPlayers] = await Promise.all([
       getPlayerRank(name),
-      kv.zcard("leaderboard"),
+      getTotalPlayers(),
     ]);
 
     return NextResponse.json({
