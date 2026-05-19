@@ -6,9 +6,57 @@ export interface Knot {
   svg: string;
 }
 
-const ROPE_COLOR = "#8B4513";
-const ROPE_WIDTH = 5;
-const POLE_COLOR = "#A0522D";
+const GRADIENTS = `
+<defs>
+  <linearGradient id="ropeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#CD853F"/>
+    <stop offset="30%" stop-color="#A0522D"/>
+    <stop offset="50%" stop-color="#8B4513"/>
+    <stop offset="70%" stop-color="#6B3E12"/>
+    <stop offset="100%" stop-color="#5D3A1A"/>
+  </linearGradient>
+  <linearGradient id="ropeGradLight" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#DEB887"/>
+    <stop offset="30%" stop-color="#CD853F"/>
+    <stop offset="50%" stop-color="#A0522D"/>
+    <stop offset="70%" stop-color="#8B4513"/>
+    <stop offset="100%" stop-color="#6B3E12"/>
+  </linearGradient>
+  <linearGradient id="poleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#8B4513"/>
+    <stop offset="30%" stop-color="#A0522D"/>
+    <stop offset="50%" stop-color="#B8860B"/>
+    <stop offset="70%" stop-color="#A0522D"/>
+    <stop offset="100%" stop-color="#8B4513"/>
+  </linearGradient>
+  <filter id="shadow3d" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.4"/>
+  </filter>
+  <filter id="ropeShine">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"/>
+    <feOffset in="blur" dx="0" dy="-1" result="offsetBlur"/>
+    <feFlood flood-color="#FFF" flood-opacity="0.4"/>
+    <feComposite in2="offsetBlur" operator="in"/>
+    <feMerge>
+      <feMergeNode/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>`;
+
+function ropePath(d: string, opacity = 1) {
+  return `<path d="${d}" stroke="url(#ropeGrad)" stroke-width="8" fill="none" stroke-linecap="round" filter="url(#shadow3d)" opacity="${opacity}"/>
+  <path d="${d}" stroke="url(#ropeGradLight)" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#ropeShine)" opacity="${opacity}"/>`;
+}
+
+function ropePathThin(d: string, opacity = 1) {
+  return `<path d="${d}" stroke="url(#ropeGrad)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#shadow3d)" opacity="${opacity}"/>
+  <path d="${d}" stroke="url(#ropeGradLight)" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#ropeShine)" opacity="${opacity}"/>`;
+}
+
+function pole(x: number, w: number, h: number) {
+  return `<rect x="${x}" y="10" width="${w}" height="${h}" fill="url(#poleGrad)" rx="4" filter="url(#shadow3d)"/>`;
+}
 
 export const knots: Knot[] = [
   {
@@ -17,11 +65,12 @@ export const knots: Knot[] = [
     description: "Simpul yang digunakan untuk memulai dan mengakhiri suatu ikatan pada tongkat atau tiang.",
     usage: "Mengikat tali pada tongkat saat membuat tiang bendera, tandu, atau bangunan darurat.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect x="90" y="10" width="20" height="130" fill="${POLE_COLOR}" rx="3"/>
-      <path d="M60 30 Q110 20 140 30" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M60 40 Q110 30 140 40" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M55 30 L55 45 L50 40" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M145 30 L145 45 L150 40" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      ${pole(90, 20, 130)}
+      ${ropePath("M55 25 C90 15, 120 25, 145 35", 0.8)}
+      ${ropePath("M55 40 C90 30, 120 40, 145 50", 0.8)}
+      ${ropePathThin("M50 25 L45 15 L40 20", 0.8)}
+      ${ropePathThin("M150 35 L155 15 L160 20", 0.8)}
     </svg>`
   },
   {
@@ -30,34 +79,40 @@ export const knots: Knot[] = [
     description: "Simpul yang digunakan untuk menambatkan tali pada jangkar atau benda tetap.",
     usage: "Menambatkan tali pada pohon, pancang, atau benda tetap lainnya dengan kuat.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect x="85" y="10" width="30" height="130" fill="${POLE_COLOR}" rx="4"/>
-      <path d="M50 50 Q85 40 115 60 Q145 75 160 50" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M160 50 L170 45 L165 55" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M45 50 L35 45 L40 55" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      ${pole(85, 30, 130)}
+      ${ropePath("M40 45 C65 35, 95 45, 115 60 C135 75, 150 65, 165 45", 0.8)}
+      ${ropePathThin("M35 45 L25 40 L20 50", 0.8)}
+      ${ropePathThin("M165 45 L175 40 L180 50", 0.8)}
+      <circle cx="160" cy="45" r="4" fill="#A0522D"/>
     </svg>`
   },
   {
     id: 3,
     name: "Simpul Anyam",
-    description: "Simpul untuk menyambung dua tali yang berbeda ukuran atau berbeda jenis.",
-    usage: "Menyambung tali tambang dengan tali kecil, atau tali basah dengan tali kering.",
+    description: "Simpul untuk menyabung dua tali yang berbeda ukuran atau berbeda jenis.",
+    usage: "Menyabung tali tambang dengan tali kecil, atau tali basah dengan tali kering.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 50 Q60 30 100 70 Q140 110 180 90" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M20 90 Q60 110 100 70 Q140 30 180 50" stroke="#D2691E" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round" stroke-dasharray="8 4"/>
-      <circle cx="100" cy="70" r="8" fill="none" stroke="${ROPE_COLOR}" stroke-width="2"/>
+      ${GRADIENTS}
+      ${ropePath("M15 45 C50 25, 90 55, 120 85 C150 115, 185 95, 195 85")}
+      ${ropePath("M15 85 C50 105, 90 75, 120 45 C150 15, 185 35, 195 45")}
+      <ellipse cx="105" cy="65" rx="12" ry="10" fill="none" stroke="url(#ropeGrad)" stroke-width="6" filter="url(#shadow3d)"/>
+      <ellipse cx="105" cy="65" rx="12" ry="10" fill="none" stroke="url(#ropeGradLight)" stroke-width="3" filter="url(#ropeShine)"/>
     </svg>`
   },
   {
     id: 4,
     name: "Simpul Anyam Berganda",
-    description: "Simpul untuk menyambung dua tali yang licin atau basah dengan ikatan ganda.",
-    usage: "Menyambung tali nilon, tali plastik, atau tali dalam keadaan basah.",
+    description: "Simpul untuk menyabung dua tali yang licin atau basah dengan ikatan ganda.",
+    usage: "Menyabung tali nilon, tali plastik, atau tali dalam keadaan basah.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 40 Q60 20 100 60 Q140 100 180 80" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M20 60 Q60 40 100 80 Q140 120 180 100" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M20 100 Q60 120 100 80 Q140 40 180 60" stroke="#D2691E" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round" stroke-dasharray="8 4"/>
-      <circle cx="100" cy="70" r="5" fill="none" stroke="${ROPE_COLOR}" stroke-width="2"/>
-      <circle cx="100" cy="85" r="5" fill="none" stroke="${ROPE_COLOR}" stroke-width="2"/>
+      ${GRADIENTS}
+      ${ropePath("M15 35 C50 15, 90 45, 120 75 C150 105, 185 85, 195 75")}
+      ${ropePath("M15 55 C50 35, 90 65, 120 95 C150 125, 185 105, 195 95")}
+      ${ropePath("M15 95 C50 115, 90 85, 120 55 C150 25, 185 45, 195 55")}
+      <circle cx="108" cy="65" r="8" fill="none" stroke="url(#ropeGrad)" stroke-width="5" filter="url(#shadow3d)"/>
+      <circle cx="108" cy="65" r="8" fill="none" stroke="url(#ropeGradLight)" stroke-width="2.5" filter="url(#ropeShine)"/>
+      <circle cx="108" cy="82" r="6" fill="none" stroke="url(#ropeGrad)" stroke-width="5" filter="url(#shadow3d)"/>
     </svg>`
   },
   {
@@ -66,20 +121,23 @@ export const knots: Knot[] = [
     description: "Simpul paling dasar dan sederhana yang mudah dibuat untuk mengikat.",
     usage: "Mengikat tali rafia, mengakhiri jahitan, atau ikatan sederhana yang tidak perlu kuat.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <path d="M40 50 Q60 20 100 50 Q140 80 160 50" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M160 50 L175 40 L170 55" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M35 50 L25 40 L30 55" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="100" cy="50" r="12" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-2}"/>
+      ${GRADIENTS}
+      ${ropePath("M35 45 C55 15, 95 35, 120 55 C145 75, 165 55, 175 45")}
+      ${ropePathThin("M175 45 L185 35 L180 50")}
+      ${ropePathThin("M25 45 L15 35 L20 50")}
+      <circle cx="105" cy="45" r="18" fill="none" stroke="url(#ropeGrad)" stroke-width="8" filter="url(#shadow3d)"/>
+      <circle cx="105" cy="45" r="18" fill="none" stroke="url(#ropeGradLight)" stroke-width="4" filter="url(#ropeShine)"/>
     </svg>`
   },
   {
     id: 6,
     name: "Simpul Kembar",
-    description: "Simpul untuk menyambung dua tali dengan ukuran yang sama besar.",
-    usage: "Menyambung dua tali tambang yang sama besar, mengikat bendera pada tali.",
+    description: "Simpul untuk menyabung dua tali dengan ukuran yang sama besar.",
+    usage: "Menyabung dua tali tambang yang sama besar, mengikat bendera pada tali.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 50 C50 20 80 80 100 50 C120 20 150 80 170 50" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M30 90 C50 120 80 60 100 90 C120 120 150 60 170 90" stroke="#D2691E" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round" stroke-dasharray="8 4"/>
+      ${GRADIENTS}
+      ${ropePath("M25 40 C55 10, 90 60, 110 40 C130 10, 165 60, 175 40")}
+      ${ropePath("M25 90 C55 120, 90 70, 110 90 C130 120, 165 70, 175 90")}
     </svg>`
   },
   {
@@ -88,10 +146,13 @@ export const knots: Knot[] = [
     description: "Simpul yang membentuk loop tetap yang tidak mudah terlepas dan tidak menjepit.",
     usage: "Menyelamatkan orang dari ketinggian, membuat loop pada ujung tali, menambatkan perahu.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="70" r="30" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}"/>
-      <path d="M100 100 L100 130" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M100 40 Q70 30 60 50 Q50 70 70 80" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M100 130 L115 120 L110 130" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      <circle cx="100" cy="65" r="30" fill="none" stroke="url(#ropeGrad)" stroke-width="10" filter="url(#shadow3d)"/>
+      <circle cx="100" cy="65" r="30" fill="none" stroke="url(#ropeGradLight)" stroke-width="5" filter="url(#ropeShine)"/>
+      ${ropePath("M100 95 L100 125")}
+      ${ropePathThin("M100 125 L112 115 L108 125")}
+      ${ropePath("M100 35 C75 25, 60 35, 55 50 C50 65, 65 75, 80 75")}
+      <ellipse cx="100" cy="95" rx="8" ry="5" fill="url(#ropeGrad)"/>
     </svg>`
   },
   {
@@ -100,8 +161,10 @@ export const knots: Knot[] = [
     description: "Simpul berbentuk angka 8 yang berfungsi sebagai pengaman di ujung tali.",
     usage: "Mencegah ujung tali terlepas dari lubang atau alat, pengaman panjat tebing.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 20 Q100 10 100 40 Q100 70 60 70 Q20 70 40 100 Q60 130 100 130" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M100 130 L120 130" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
+      ${GRADIENTS}
+      ${ropePath("M55 20 C95 5, 95 40, 95 55 C95 70, 55 70, 40 95 C25 120, 75 135, 105 125")}
+      ${ropePathThin("M105 125 L125 125")}
+      <circle cx="95" cy="55" r="6" fill="url(#ropeGrad)"/>
     </svg>`
   },
   {
@@ -110,11 +173,13 @@ export const knots: Knot[] = [
     description: "Simpul yang membentuk loop yang bisa menyempit saat ditarik.",
     usage: "Menangkap hewan, mengikat benda yang sulit dijangkau, pramuka scouting.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="60" r="35" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" stroke-dasharray="1 0"/>
-      <path d="M65 60 Q65 35 100 35" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M100 35 Q120 40 130 60" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M120 95 L140 130" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M140 130 L155 125 L148 135" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      <circle cx="100" cy="55" r="35" fill="none" stroke="url(#ropeGrad)" stroke-width="10" filter="url(#shadow3d)"/>
+      <circle cx="100" cy="55" r="35" fill="none" stroke="url(#ropeGradLight)" stroke-width="5" filter="url(#ropeShine)"/>
+      ${ropePath("M65 55 C65 30, 95 20, 115 35")}
+      ${ropePath("M115 35 C130 45, 135 60, 135 75")}
+      ${ropePath("M125 90 L145 120")}
+      ${ropePathThin("M145 120 L158 115 L150 128")}
     </svg>`
   },
   {
@@ -123,11 +188,13 @@ export const knots: Knot[] = [
     description: "Simpul yang mengikat erat benda bundar dan tidak mudah lepas.",
     usage: "Mengikat selang air, mengikat karung, mengikat bambu pada pembuatan rak.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect x="60" y="30" width="80" height="80" fill="none" stroke="${POLE_COLOR}" stroke-width="15" rx="40"/>
-      <path d="M30 50 Q60 20 100 50 Q140 80 170 50" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M30 90 Q60 120 100 90 Q140 60 170 90" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M25 50 L25 95 L20 90" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M175 50 L175 95 L180 90" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      <rect x="55" y="25" width="90" height="90" rx="45" fill="none" stroke="url(#poleGrad)" stroke-width="20"/>
+      <rect x="55" y="25" width="90" height="90" rx="45" fill="none" stroke="url(#ropeGradLight)" stroke-width="10"/>
+      ${ropePath("M30 45 C55 20, 90 40, 125 55 C160 70, 175 50, 185 45")}
+      ${ropePath("M30 85 C55 110, 90 90, 125 75 C160 60, 175 80, 185 85")}
+      ${ropePathThin("M25 45 L25 80 L20 75")}
+      ${ropePathThin("M185 45 L185 80 L190 75")}
     </svg>`
   },
   {
@@ -136,12 +203,14 @@ export const knots: Knot[] = [
     description: "Simpul dengan lilitan penuh mengelilingi tiang untuk menahan beban berat.",
     usage: "Menarik benda berat, menahan beban pada tiang, membuat dragbar.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect x="90" y="10" width="20" height="130" fill="${POLE_COLOR}" rx="3"/>
-      <path d="M50 40 Q110 20 160 40" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M50 55 Q110 35 160 55" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M50 70 Q110 50 160 70" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M45 40 L45 75 L40 70" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M165 40 L165 75 L170 70" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      ${pole(90, 20, 130)}
+      ${ropePath("M45 35 C80 20, 120 30, 155 40", 0.8)}
+      ${ropePath("M45 50 C80 35, 120 45, 155 55", 0.8)}
+      ${ropePath("M45 65 C80 50, 120 60, 155 70", 0.8)}
+      ${ropePath("M45 80 C80 65, 120 75, 155 85", 0.8)}
+      ${ropePathThin("M40 35 L35 55 L30 50", 0.8)}
+      ${ropePathThin("M160 40 L165 55 L170 50", 0.8)}
     </svg>`
   },
   {
@@ -150,23 +219,28 @@ export const knots: Knot[] = [
     description: "Simpul yang mudah dibuka dengan menarik salah satu ujung tali.",
     usage: "Ikatan sementara yang perlu cepat dibuka, mengikat hewan, tali jemuran.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <path d="M40 80 Q60 30 100 50 Q140 70 160 40" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M160 40 L175 35 L168 48" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M40 80 L25 85 L32 72" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="100" cy="55" r="15" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-2}"/>
+      ${GRADIENTS}
+      ${ropePath("M35 75 C55 35, 95 45, 115 55 C135 65, 155 45, 170 35")}
+      ${ropePathThin("M170 35 L182 30 L175 42")}
+      ${ropePathThin("M30 75 L15 80 L22 68")}
+      <circle cx="105" cy="50" r="20" fill="none" stroke="url(#ropeGrad)" stroke-width="8" filter="url(#shadow3d)"/>
+      <circle cx="105" cy="50" r="20" fill="none" stroke="url(#ropeGradLight)" stroke-width="4" filter="url(#ropeShine)"/>
     </svg>`
   },
   {
     id: 13,
     name: "Simpul Nelayan",
-    description: "Simpul untuk menyambung dua tali yang licin seperti tali pancing.",
-    usage: "Menyambung tali pancing, tali nilon, atau tali plastik yang licin.",
+    description: "Simpul untuk menyabung dua tali yang licin seperti tali pancing.",
+    usage: "Menyabung tali pancing, tali nilon, atau tali plastik yang licin.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="60" r="10" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}"/>
-      <circle cx="130" cy="60" r="10" fill="none" stroke="#D2691E" stroke-width="${ROPE_WIDTH-1}" stroke-dasharray="8 4"/>
-      <path d="M20 60 Q50 40 70 60" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M70 60 Q100 40 130 60" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M130 60 Q160 40 180 60" stroke="#D2691E" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round" stroke-dasharray="8 4"/>
+      ${GRADIENTS}
+      <circle cx="65" cy="55" r="12" fill="none" stroke="url(#ropeGrad)" stroke-width="8" filter="url(#shadow3d)"/>
+      <circle cx="65" cy="55" r="12" fill="none" stroke="url(#ropeGradLight)" stroke-width="4" filter="url(#ropeShine)"/>
+      <circle cx="135" cy="55" r="12" fill="none" stroke="url(#ropeGrad)" stroke-width="8" filter="url(#shadow3d)"/>
+      <circle cx="135" cy="55" r="12" fill="none" stroke="url(#ropeGradLight)" stroke-width="4" filter="url(#ropeShine)"/>
+      ${ropePath("M15 55 C40 40, 55 45, 65 55")}
+      ${ropePath("M65 55 C85 40, 110 40, 135 55")}
+      <path d="M135 55 C160 40, 180 45, 190 55" stroke="url(#ropeGradLight)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#ropeShine)"/>
     </svg>`
   },
   {
@@ -175,11 +249,14 @@ export const knots: Knot[] = [
     description: "Simpul yang membentuk dua loop untuk duduk atau mengangkat orang.",
     usage: "Menurunkan atau menaikkan orang dari ketinggian, evakuasi darurat.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="55" r="25" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}"/>
-      <circle cx="130" cy="55" r="25" fill="none" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}"/>
-      <path d="M70 30 Q100 10 130 30" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M70 80 Q100 100 130 80" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M130 80 L160 130" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
+      ${GRADIENTS}
+      <circle cx="70" cy="55" r="25" fill="none" stroke="url(#ropeGrad)" stroke-width="10" filter="url(#shadow3d)"/>
+      <circle cx="70" cy="55" r="25" fill="none" stroke="url(#ropeGradLight)" stroke-width="5" filter="url(#ropeShine)"/>
+      <circle cx="130" cy="55" r="25" fill="none" stroke="url(#ropeGrad)" stroke-width="10" filter="url(#shadow3d)"/>
+      <circle cx="130" cy="55" r="25" fill="none" stroke="url(#ropeGradLight)" stroke-width="5" filter="url(#ropeShine)"/>
+      ${ropePath("M70 30 C95 10, 130 10, 130 30")}
+      ${ropePath("M70 80 C95 100, 130 100, 130 80")}
+      ${ropePath("M130 80 L160 125")}
     </svg>`
   },
   {
@@ -188,11 +265,13 @@ export const knots: Knot[] = [
     description: "Simpul yang dapat digeser untuk mengencangkan atau mengendurkan tali tenda.",
     usage: "Mengikat tali tenda, tali jemuran, atau tali yang perlu disetel tegangannya.",
     svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect x="90" y="10" width="16" height="130" fill="${POLE_COLOR}" rx="3"/>
-      <path d="M40 40 Q90 25 130 40 Q160 55 170 40" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M40 55 Q90 40 130 55" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH}" fill="none" stroke-linecap="round"/>
-      <path d="M35 40 L35 60" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round"/>
-      <path d="M170 40 L180 35 L178 48" stroke="${ROPE_COLOR}" stroke-width="${ROPE_WIDTH-1}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      ${GRADIENTS}
+      ${pole(90, 18, 130)}
+      ${ropePath("M35 35 C75 20, 115 30, 145 40 C165 48, 175 40, 185 35")}
+      ${ropePath("M35 50 C75 35, 115 45, 145 55")}
+      ${ropePathThin("M30 35 L30 55 L25 50")}
+      ${ropePathThin("M185 35 L195 30 L188 42")}
+      <circle cx="160" cy="38" r="6" fill="url(#ropeGrad)" filter="url(#shadow3d)"/>
     </svg>`
   }
 ];
