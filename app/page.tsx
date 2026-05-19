@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface PlayerData {
-  id: number;
+  id: string;
   name: string;
-  scores: { id: number; score: number; total: number; createdAt: string }[];
+  scores: { score: number; total: number; createdAt: string }[];
   rank?: number;
 }
 
@@ -115,7 +115,7 @@ export default function Home() {
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {player.scores.map((s, i) => (
                       <div
-                        key={s.id}
+                        key={`${s.createdAt}-${i}`}
                         className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2 text-sm"
                       >
                         <span className="text-gray-500">Game #{i + 1}</span>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPlayer, getPlayerRank } from "@/lib/kv";
+import { kv } from "@vercel/kv";
 
 export async function GET(
   _req: Request,
@@ -7,43 +8,23 @@ export async function GET(
 ) {
   try {
     const { name } = await params;
-    const player = await prisma.player.findUnique({
-      where: { name },
-      include: {
-        scores: {
-          orderBy: { createdAt: "desc" },
-          take: 20,
-        },
-      },
-    });
+    const player = await getPlayer(name);
 
     if (!player) {
       return NextResponse.json({ error: "Player not found" }, { status: 404 });
     }
 
-    const allScores = await prisma.score.findMany({
-      include: { player: true },
-      orderBy: { score: "desc" },
-    });
-
-    const rankMap = new Map<string, number>();
-    allScores.forEach((s, i) => {
-      if (!rankMap.has(s.player.name)) {
-        rankMap.set(s.player.name, i + 1);
-      }
-    });
+    const [rank, totalPlayers] = await Promise.all([
+      getPlayerRank(name),
+      kv.zcard("leaderboard"),
+    ]);
 
     return NextResponse.json({
       id: player.id,
       name: player.name,
-      scores: player.scores.map(s => ({
-        id: s.id,
-        score: s.score,
-        total: s.total,
-        createdAt: s.createdAt.toISOString(),
-      })),
-      bestRank: rankMap.get(player.name) || null,
-      totalPlayers: new Set(allScores.map(s => s.player.name)).size,
+      scores: player.scores,
+      bestRank: rank,
+      totalPlayers,
     });
   } catch (error) {
     console.error("GET /api/players/[name] error:", error);
